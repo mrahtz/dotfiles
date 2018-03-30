@@ -1,0 +1,7 @@
+[color]
+	ui = true
+[user]
+	name = Matthew Rahtz
+	email = matthew.rahtz@gmail.com
+[push]
+	default = current
