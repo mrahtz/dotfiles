@@ -1,0 +1,25 @@
+snippet ipy
+from IPython.core.debugger import Pdb
+Pdb().set_trace()
+endsnippet
+
+snippet ap
+parser = argparse.ArgumentParser()
+parser.add_argument('arg')
+args = parser.parse_args()
+endsnippet
+
+snippet ut
+import unittest
+
+class TestStuff(unittest.TestCase):
+
+    def setUp(self):
+        pass
+
+    def test_foo(self):
+        self.assertEqual(True, True)
+
+if __name__ == '__main__':
+    unittest.main()
+endsnippet
