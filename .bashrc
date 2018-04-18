@@ -10,6 +10,8 @@ function diffe() { diff --width=$COLUMNS --side-by-side <(sed 's///g' "$1") <(se
 function kj() { jobs -p | while read pid; do echo $pid; kill -9 $pid; done; }
 function hg() { history | grep $*; }
 
+alias config='git --git-dir=$HOME/.dotfiles --work-tree=$HOME'
+
 alias gwd='git diff --word-diff=color'
 alias gs='git status'
 alias gpl='git pull'
