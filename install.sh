@@ -10,3 +10,4 @@ if [[ $? != 0 ]]; then
     echo "Existing configuration backed up to .confbackup."
     config checkout
 fi
+config submodule update --init --recursive
