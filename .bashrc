@@ -17,3 +17,5 @@ alias gps='git push'
 alias gr='git rev-parse --short HEAD'
 alias gco='git checkout'
 alias gc='git commit'
+
+export PATH="~/.local/bin:$PATH"
