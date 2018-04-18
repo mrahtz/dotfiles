@@ -21,3 +21,4 @@ alias gco='git checkout'
 alias gc='git commit'
 
 export PATH="~/.local/bin:$PATH"
+[ -f ~/.fzf.bash ] && source ~/.fzf.bash
