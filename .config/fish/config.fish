@@ -21,8 +21,7 @@ abbr p8 'ping 8.8.8.8'
 
 abbr uc pass\ \'ubs\ contract\'
 
-abbr e 'ssh mrahtz@euler.ethz.ch'
-abbr e7 'ssh -L 7007:localhost:7007 mrahtz@euler.ethz.ch'
+abbr e 'ssh -L 7007:localhost:7007 mrahtz@euler.ethz.ch'
 abbr gss 'gcloud compute instances start gpu-0'
 abbr gsh 'gcloud compute ssh gpu-0 -- -L 8008:localhost:8008 -L 4000:localhost:4000'
 
