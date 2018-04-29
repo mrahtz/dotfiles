@@ -15,5 +15,8 @@ if [[ $? != 0 ]]; then
     echo "Existing configuration backed up to .confbackup."
     config checkout
 fi
-rm README.md install.sh
 config submodule update --init --recursive
+
+rm README.md install.sh
+# Don't show these files in 'config status'
+config update-index --assume-unchanged README.md install.sh
