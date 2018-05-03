@@ -10,6 +10,7 @@ abbr ga 'git add'
 abbr gs 'git status'
 abbr gr 'git rev-parse --short HEAD'
 abbr gb 'git branch'
+abbr gcp 'git cherry-pick'
 
 abbr f 'find . -iname'
 abbr g grep
