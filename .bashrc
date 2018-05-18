@@ -21,6 +21,9 @@ alias gps='git push'
 alias gr='git rev-parse --short HEAD'
 alias gco='git checkout'
 alias gc='git commit'
+alias gb='git branch'
+alias ga='git add'
+alias gca='git commit --amend'
 
 export PATH="~/.local/bin:$PATH"
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
