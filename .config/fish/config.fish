@@ -15,6 +15,7 @@ alias gcp='git cherry-pick'
 alias f='find . -iname'
 alias g=grep
 alias gv='grep -v'
+alias kj='jobs -p | while read line; if echo $line | grep -q "^[0-9]"; set pid $line; kill $pid; end; end'
 
 alias p8='ping 8.8.8.8'
 
