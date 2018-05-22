@@ -22,7 +22,6 @@ alias py=python
 
 alias fl='floyd logs -t'
 alias fs='floyd status'
-alias fr='floyd run --tensorboard --env tensorflow-1.5'
 
 if not set -q -U fish_user_paths
   set -U fish_user_paths "$HOME/.local/bin"
