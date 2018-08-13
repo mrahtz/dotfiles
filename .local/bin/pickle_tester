@@ -1,0 +1,30 @@
+"""
+Test whether the specified pickle files can be successfully loaded.
+"""
+
+import argparse
+import gzip
+import pickle
+import sys
+
+import magic
+
+parser = argparse.ArgumentParser()
+parser.add_argument('pickle', nargs='*')
+args = parser.parse_args()
+
+for pkl_filename in args.pickle:
+    if 'gzip' in magic.from_file(pkl_filename):
+        f = gzip.open(pkl_filename, 'rb')
+    else:
+        f = open(pkl_filename, 'rb')
+
+    print("{}: ".format(pkl_filename), end="")
+    sys.stdout.flush()
+    try:
+        pickle.load(f)
+        print("success!")
+    except Exception as e:
+        print("error:", e)
+
+    f.close()
