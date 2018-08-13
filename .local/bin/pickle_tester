@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 """
 Test whether the specified pickle files can be successfully loaded.
 """
@@ -8,6 +10,8 @@ import pickle
 import sys
 
 import magic
+
+sys.path.append('.')
 
 parser = argparse.ArgumentParser()
 parser.add_argument('pickle', nargs='*')
