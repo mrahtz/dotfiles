@@ -1,0 +1,12 @@
+#!/bin/bash
+
+LOG_DIR=$1
+if [[ $LOG_DIR == "" ]]; then
+    echo "Usage: $0 <path>" 2>&1
+    exit 1
+fi
+
+while true; do
+    tb "$LOG_DIR"/$(ls -1rt "$LOG_DIR"| tail -n 1) &
+    inotifywait -e CREATE "$LOG_DIR"
+done
