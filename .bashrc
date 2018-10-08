@@ -24,6 +24,7 @@ alias gc='git commit'
 alias gb='git branch'
 alias ga='git add'
 alias gca='git commit --amend'
+alias mr='ls -1rt | tail -n 1'
 
 export PATH="~/.local/bin:$PATH"
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
