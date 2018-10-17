@@ -21,6 +21,7 @@ set shiftwidth=4
 set tabstop=4
 set ignorecase
 set smartcase	" if a search phrase has uppercase, be case-sensitive
+set autoindent
 
 " magic options to make lists autoindent properly
 " from https://stackoverflow.com/a/37172060/7832197
