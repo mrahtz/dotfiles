@@ -25,6 +25,10 @@ alias gb='git branch'
 alias ga='git add'
 alias gca='git commit --amend'
 alias mr='ls -1rt | tail -n 1'
+alias mrd='ls -1rtd */ | tail -n 1'
+alias ta='tmux a -t'
+alias tls='tmux ls'
+alias tk='tmux kill-session -t'
 
 export PATH="~/.local/bin:$PATH"
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
