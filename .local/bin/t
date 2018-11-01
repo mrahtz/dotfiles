@@ -1,3 +1,10 @@
 #!/bin/bash
 
-echo "rtransfer $(hostname):'$(pwd)'"
+SEND_FILE=$1
+if [[ $SEND_FILE == "" ]]; then
+    SEND_PATH=$(pwd)
+else
+    SEND_PATH=$(pwd)/$SEND_FILE
+fi
+
+echo "rtransfer $(hostname):'$SEND_PATH'"
