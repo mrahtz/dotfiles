@@ -15,7 +15,6 @@ if [[ $rc != 0 ]]; then
     echo "Existing configuration backed up to .confbackup."
     config checkout
 fi
-config submodule update --init --recursive
 
 rm README.md install.sh
 # Don't show these files in 'config status'
