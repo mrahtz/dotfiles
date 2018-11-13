@@ -1,0 +1,24 @@
+#!/bin/bash
+
+set -o errexit
+
+REMOTE_PATH=$1
+if [[ $REMOTE_PATH == "" ]]; then
+    echo "Usage: $0 <remote path>" >&2
+    exit 1
+fi
+
+if test $(find ~/.tr_timestamp -atime -5s); then
+    exit
+fi
+touch ~/.tr_timestamp
+
+TO_DIR=$(mktemp -d)
+cmd="rsync -av '$REMOTE_PATH' '$TO_DIR' && find '$TO_DIR' -mindepth 1 -maxdepth 1 | xargs open"
+bash_cmd="/bin/bash -c '$cmd'"
+echo "$bash_cmd" > /tmp/tr_debug
+script="tell application \"iTerm2\"
+  create window with default profile command \"$bash_cmd\"
+end tell"
+echo "$script" >> /tmp/tr_debug
+osascript -e "$script"
