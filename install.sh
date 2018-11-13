@@ -10,12 +10,12 @@ if [[ $rc != 0 ]]; then
     mkdir ~/.confbackup
     egrep "\s+\." <<< "$checkout_output" | awk '{print $1}' | while read f; do
     mkdir -p ~/.confbackup/"$(dirname $f)"
-        mv "$f" ~/.confbackup/"$f"
+        mv ~/"$f" ~/.confbackup/"$f"
     done
     echo "Existing configuration backed up to .confbackup."
     config checkout
 fi
 
-rm README.md install.sh
+rm ~/README.md ~/install.sh
 # Don't show these files in 'config status'
-config update-index --assume-unchanged README.md install.sh
+config update-index --assume-unchanged ~/README.md ~/install.sh
