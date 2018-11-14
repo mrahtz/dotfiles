@@ -2,20 +2,23 @@
 
 set -o errexit
 
-REMOTE_PATH=$1
-if [[ $REMOTE_PATH == "" ]]; then
-    echo "Usage: $0 <remote path>" >&2
-    exit 1
-fi
+server=$1
+remote_paths="$server:\""
+for remote_path in "${@:2}"; do
+    remote_paths="$remote_paths '$remote_path'"
+done
+remote_paths="$remote_paths\""
 
 if test $(find ~/.tr_timestamp -atime -5s); then
     exit
 fi
 touch ~/.tr_timestamp
 
-TO_DIR=$(mktemp -d)
-cmd="rsync -av '$REMOTE_PATH' '$TO_DIR' && find '$TO_DIR' -mindepth 1 -maxdepth 1 | xargs open"
-bash_cmd="/bin/bash -c '$cmd'"
+to_dir=$(mktemp -d)
+cmd="rsync -av $remote_paths '$to_dir' && open '$to_dir'"
+script_name=$(mktemp)
+echo $cmd > $script_name
+bash_cmd="/bin/bash '$script_name'"
 echo "$bash_cmd" > /tmp/tr_debug
 script="tell application \"iTerm2\"
   create window with default profile command \"$bash_cmd\"
