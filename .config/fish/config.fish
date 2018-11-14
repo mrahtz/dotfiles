@@ -16,13 +16,8 @@ alias f='find . -iname'
 alias g=grep
 alias gv='grep -v'
 alias kj='jobs -p | while read line; if echo $line | grep -q "^[0-9]"; set pid $line; kill -9 $pid; end; end'
-
 alias p8='ping 8.8.8.8'
-
-alias py=python
-
-alias fl='floyd logs -t'
-alias fs='floyd status'
+alias p=python
 
 if not set -q -U fish_user_paths
   set -U fish_user_paths "$HOME/.local/bin"
