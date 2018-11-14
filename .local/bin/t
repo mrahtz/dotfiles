@@ -1,10 +1,11 @@
 #!/bin/bash
 
-SEND_FILE=$1
-if [[ $SEND_FILE == "" ]]; then
-    SEND_PATH=$(pwd)
-else
-    SEND_PATH=$(pwd)/$SEND_FILE
+send_paths=""
+for file in "$@"; do
+    send_path=$(readlink -f $file)
+    send_paths="$send_paths '$send_path'"
+done
+if [[ $send_paths == "" ]]; then
+    send_paths=$(pwd)
 fi
-
-echo "rtransfer $(hostname):'$SEND_PATH'"
+echo "rtransfer $(hostname) $send_paths"
