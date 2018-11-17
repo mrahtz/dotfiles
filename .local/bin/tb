@@ -16,4 +16,4 @@ if [[ ! -d "$DIR" ]]; then
     exit 1
 fi
 pkill -f "tensorboard --port $PORT"
-tensorboard --port $PORT --reload_interval 1 --logdir "$DIR" &
+tensorboard --port $PORT --reload_interval 1 --logdir "$DIR"
