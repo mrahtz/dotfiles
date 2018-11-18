@@ -5,6 +5,8 @@ export HISTSIZE=10000
 export PROMPT_COMMAND='history -a'
 # log timestamps of commands
 export HISTTIMEFORMAT='%Y-%m-%d %H:%M.%S | '
+# set SIGHUP to jobs on exit
+shopt -s huponexit
 
 export PS1='\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
 
