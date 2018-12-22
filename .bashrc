@@ -13,6 +13,13 @@ export PS1='\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
 function diffe() { diff --width=$COLUMNS --side-by-side "$1" "$2" | less --prompt="${1//./\\.} vs ${2//./\\.}"; }
 function kj() { jobs -p | while read pid; do echo $pid; kill -9 $pid; done; }
 function hg() { history | grep $*; }
+function tb() {
+    dir=$1
+    port=$2
+    if [[ $port == "" ]]; then port=6006; fi
+    pkill -f "tensorboard --port $post"
+    tensorboard --port $port --reload_interval 1 --logdir $dir &
+}
 
 alias config='git --git-dir=$HOME/.dotfiles --work-tree=$HOME'
 
