@@ -2,7 +2,7 @@
 
 send_paths=""
 for file in "$@"; do
-    send_path=$(readlink -f $file)
+    send_path=$(readlink -f "$file")
     send_paths="$send_paths '$send_path'"
 done
 if [[ $send_paths == "" ]]; then
