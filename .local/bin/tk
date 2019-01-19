@@ -1,0 +1,5 @@
+#!/bin/bash
+
+for target in "$@"; do
+    tmux kill-session -t "$target"
+done
