@@ -1,0 +1,11 @@
+#!/bin/bash
+
+set -o errexit
+
+#files=$(find $1 -name '*.mp4' -newermt $2 ! -newermt $3)
+files=$(ls -l $(find $1 -name '*.mp4') | grep -C 2 $2 | awk '{print $NF}')
+if [[ $files == "" ]]; then
+    echo "Not found"
+    exit 1
+fi
+t $files
