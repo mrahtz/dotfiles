@@ -13,16 +13,6 @@ export PS1='\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
 function diffe() { diff --width=$COLUMNS --side-by-side "$1" "$2" | less --prompt="${1//./\\.} vs ${2//./\\.}"; }
 function kj() { jobs -p | while read pid; do echo $pid; kill -9 $pid; done; }
 function hg() { history | grep $*; }
-function tb() {
-    dir=$1
-    port=$2
-    if [[ $port == "" ]]; then port=6006; fi
-    pkill -f "tensorboard --port $post"
-    tmp=$(mktemp -u)
-    mkfifo $tmp
-    tensorboard --port $port --reload_interval 1 --logdir $dir &> $tmp &
-    head -n 1 $tmp
-}
 function ts() {
     tb $1
     sleep 15
@@ -58,7 +48,7 @@ alias mr='ls -1rt | tail -n 1'
 alias mrd='ls -1rtd */ | tail -n 1'
 alias ta='tmux a -t'
 alias tls='tmux ls'
-alias tk='tmux kill-session -t'
+alias p='pgrep -af'
 
 export PATH="~/.local/bin:$PATH"
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
