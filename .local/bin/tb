@@ -3,13 +3,21 @@
 import argparse
 import os
 import subprocess
+import socket
 import tempfile
 
 parser = argparse.ArgumentParser()
 parser.add_argument('run_dirs', nargs='*')
-parser.add_argument('--port', type=int, default=6006)
 args = parser.parse_args()
 
+def get_open_port():
+    s = socket.socket()
+    s.bind(('', 0))
+    port = s.getsockname()[1]
+    s.close()
+    return port
+
+port = get_open_port()
 if len(args.run_dirs) == 1:
     tensorboard_dir = args.run_dirs[0]
 else:
@@ -18,13 +26,17 @@ else:
         os.symlink(os.path.abspath(path),
                    os.path.join(tensorboard_dir, os.path.basename(path)))
 
-subprocess.run(['pkill', '-f', f'tensorboard --port {args.port}'])
-proc = subprocess.Popen(['tensorboard', '--port', str(args.port), '--logdir', tensorboard_dir],
+subprocess.run(['pkill', '-f', 'tensorboard'])
+proc1 = subprocess.Popen(['tensorboard', '--port', str(port), '--logdir', tensorboard_dir],
                         stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-proc.stderr.readline()
-subprocess.Popen(['n', str(args.port)])
+proc1.stderr.readline()
+
+subprocess.run(['pkill', '-f', 'ngrok'])
+proc2 = subprocess.Popen(['n', str(port)])
+
 try:
     input()
 except KeyboardInterrupt:
     pass
-proc.terminate()
+proc1.terminate()
+proc2.terminate()
