@@ -1,0 +1,9 @@
+#!/bin/bash
+
+cmd=$1
+if [[ $cmd == "" ]]; then
+    echo "Usage: $0 <cmd>" >&2
+    exit 1
+fi
+
+tmux new-session -d -s "$(date +%s-%N)" "$1"
