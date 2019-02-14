@@ -1,0 +1,12 @@
+#!/bin/bash
+
+if [[ $1 == "all" ]]; then
+    statuses="SUBMITTED PENDING RUNNABLE STARTING RUNNING"
+else
+    statuses="RUNNING"
+fi
+
+for status in $statuses; do
+    echo "Jobs in status $status:"
+    aws batch list-jobs --job-queue q --job-status $status
+done
