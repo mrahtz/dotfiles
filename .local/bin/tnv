@@ -1,3 +1,14 @@
 #!/bin/bash
 
-t $(ls -1rt $(find $1 -name '*.mp4') | tail -n $2)
+if [[ $1 == "" || $2 == "" ]]; then
+    echo "Usage: $0 <dir> <n videos>" >&2
+    exit 1
+fi
+
+mp4_files_sorted_by_time=$(find "$1" -name '*.mp4' -print0 | xargs -0r ls -1rt)
+if [[ $mp4_files_sorted_by_time == "" ]]; then
+    echo "Error: no mp4 files found" >&2
+    exit 1
+fi
+
+t $(tail -n $2 <<< "$mp4_files_sorted_by_time")
