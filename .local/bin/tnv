@@ -1,14 +1,34 @@
-#!/bin/bash
+#!/usr/bin/env python3
 
-if [[ $1 == "" || $2 == "" ]]; then
-    echo "Usage: $0 <dir> <n videos>" >&2
-    exit 1
-fi
+import argparse
+import pathlib
+import subprocess
 
-mp4_files_sorted_by_time=$(find "$1" -name '*.mp4' -print0 | xargs -0r ls -1rt)
-if [[ $mp4_files_sorted_by_time == "" ]]; then
-    echo "Error: no mp4 files found" >&2
-    exit 1
-fi
+import os
+import shutil
+import tempfile
 
-t $(tail -n $2 <<< "$mp4_files_sorted_by_time")
+parser = argparse.ArgumentParser()
+parser.add_argument('vid_dirs', nargs='*')
+parser.add_argument('--n', type=int, default=5)
+args = parser.parse_args()
+
+vids_by_dir = {}
+for vid_dir in args.vid_dirs:
+    for root, dirs, files in os.walk(vid_dir):
+        files = [os.path.join(root, f) for f in files]
+        mp4_files = list(filter(lambda f: f.endswith('.mp4'), files))
+        if not mp4_files:
+            continue
+        mp4_files = sorted(mp4_files, key=lambda f: os.path.getmtime(f))
+        mp4_files = mp4_files[-args.n:]
+        vids_by_dir[pathlib.Path(root).parts[0]] = mp4_files[:]
+
+temp_dir = tempfile.mkdtemp()
+for dirname in vids_by_dir:
+    dirname_tmp = os.path.join(temp_dir, dirname)
+    os.mkdir(dirname_tmp)
+    for vid in vids_by_dir[dirname]:
+        shutil.copy(vid, dirname_tmp)
+
+subprocess.run(f"t {temp_dir}/*", shell=True)
