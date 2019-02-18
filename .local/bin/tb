@@ -24,7 +24,7 @@ else:
     tensorboard_dir = tempfile.mkdtemp()
     for path in args.run_dirs:
         link = os.path.join(tensorboard_dir, path)
-        os.makedirs(os.path.dirname(link))
+        os.makedirs(os.path.dirname(link), exist_ok=True)
         os.symlink(os.path.abspath(path), link)
 
 subprocess.run(['pkill', '-f', 'tensorboard'])
