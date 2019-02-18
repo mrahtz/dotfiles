@@ -23,8 +23,9 @@ if len(args.run_dirs) == 1:
 else:
     tensorboard_dir = tempfile.mkdtemp()
     for path in args.run_dirs:
-        os.symlink(os.path.abspath(path),
-                   os.path.join(tensorboard_dir, os.path.basename(path)))
+        link = os.path.join(tensorboard_dir, path)
+        os.makedirs(os.path.dirname(link))
+        os.symlink(os.path.abspath(path), link)
 
 subprocess.run(['pkill', '-f', 'tensorboard'])
 proc1 = subprocess.Popen(['tensorboard', '--port', str(port), '--logdir', tensorboard_dir],
