@@ -130,9 +130,13 @@ def main():
     tight_layout(rect=[0, 0, 1, 0.90])
 
     print("Saving figure...")
-    longest_common_prefix = os.path.commonprefix(args.log_dir)
-    longest_common_suffix = os.path.commonprefix([d[::-1] for d in args.log_dir])[::-1]
-    out_filename = longest_common_prefix + '*' + longest_common_suffix + '.png'
+    if len(args.log_dir) == 1:
+        out_filename = os.path.basename(os.path.normpath(args.log_dir[0]))
+        print(out_filename)
+    else:
+        longest_common_prefix = os.path.commonprefix(args.log_dir)
+        longest_common_suffix = os.path.commonprefix([d[::-1] for d in args.log_dir])[::-1]
+        out_filename = longest_common_prefix + '*' + longest_common_suffix + '.png'
     savefig(out_filename)
 
 
