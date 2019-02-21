@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+   <key>Label</key>
+   <string>com.user.loginscript</string>
+
+   <key>EnvironmentVariables</key>
+   <dict>
+   <key>PATH</key>
+   <string>/usr/local/bin/:$PATH</string>
+   </dict>
+
+   <key>ProgramArguments</key>
+   <array><string>/Users/matthew/.local/bin/alerts_from_sqs.py</string></array>
+
+   <key>RunAtLoad</key>
+   <true/>
+</dict>
+</plist>
