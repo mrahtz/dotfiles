@@ -28,14 +28,14 @@ else:
         os.makedirs(os.path.dirname(link), exist_ok=True)
         os.symlink(os.path.abspath(path), link)
 
-subprocess.run(['pkill', '-u', getpass.getuser(), '-f', 'tensorboard'])
+subprocess.run(['pkill', '-f', 'tensorboard --port {}'.format(port)])
 proc1 = subprocess.Popen(['tensorboard', '--port', str(port), '--logdir', tensorboard_dir],
                         stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 print("Waiting for TensorBoard to start...")
 proc1.stderr.readline()
 
 subprocess.run(['pkill', '-f', 'ngrok'])
-proc2 = subprocess.Popen(['n', str(port)])
+proc2 = subprocess.Popen(['h', str(port)])
 
 try:
     input()
