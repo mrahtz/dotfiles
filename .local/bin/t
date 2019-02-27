@@ -2,6 +2,10 @@
 
 send_paths=""
 for file in "$@"; do
+    if [[ ! -e $file ]]; then
+        echo "Error: '$file' does not exist" >&2
+        exit 1
+    fi
     send_path=$(readlink -f "$file")
     send_paths="$send_paths '$send_path'"
 done
