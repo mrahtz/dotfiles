@@ -105,7 +105,7 @@ def main():
     figure(figsize=(6 * subplot_dims[1], 4 * subplot_dims[0]))
     for log_dir_n, (log_dir, events) in enumerate(events_by_log_dir.items()):
         print(log_dir)
-        color = f"C{log_dir_n}"
+        color = f"C{log_dir_n % 10}"
         label = log_dir[i:j]
         for key, events in events.items():
             if key not in axes:
