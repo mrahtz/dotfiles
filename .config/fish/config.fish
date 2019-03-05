@@ -3,7 +3,7 @@ alias gwdc='git diff --word-diff=color --cached'
 alias gpl='git pull'
 alias gps='git push'
 alias gc='git commit'
-alias gco='git checkout'
+alias gco='git checkout --recurse-submodules'
 alias gcm='git commit -m'
 alias gca='git commit --amend'
 alias ga='git add'
@@ -17,7 +17,6 @@ alias g=grep
 alias gv='grep -v'
 alias kj='jobs -p | while read line; if echo $line | grep -q "^[0-9]"; set pid $line; kill -9 $pid; end; end'
 alias p8='ping 8.8.8.8'
-alias p=python
 
 if not set -q -U fish_user_paths
   set -U fish_user_paths "$HOME/.local/bin"
