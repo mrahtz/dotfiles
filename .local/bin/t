@@ -1,15 +1,27 @@
-#!/bin/bash
+#!/usr/bin/env python3
 
-send_paths=""
-for file in "$@"; do
-    if [[ ! -e $file ]]; then
-        echo "Error: '$file' does not exist" >&2
-        exit 1
-    fi
-    send_path=$(readlink -f "$file")
-    send_paths="$send_paths '$send_path'"
-done
-if [[ $send_paths == "" ]]; then
-    send_paths=$(pwd)
-fi
-echo "rtransfer $(hostname) $send_paths"
+import argparse
+import fileinput
+import os
+import socket
+import sys
+
+parser = argparse.ArgumentParser()
+parser.add_argument('files', nargs='*')
+args = parser.parse_args()
+
+if args.files:
+    files = args.files
+else:
+    files = []
+    for line in fileinput.input():
+        files.append(line.strip())
+
+paths = []
+for f in files:
+    if not os.path.exists(f):
+        print(f"Error: path '{f}' does not exist", file=sys.stderr)
+        exit(1)
+    paths.append(os.path.realpath(f))
+
+print(f"rtransfer {socket.gethostname()} " + " ".join(paths))
