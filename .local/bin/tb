@@ -4,6 +4,7 @@ import argparse
 import os
 import subprocess
 import socket
+import sys
 import tempfile
 import getpass
 
@@ -20,10 +21,17 @@ def get_open_port():
 
 port = get_open_port()
 if len(args.run_dirs) == 1:
+    if not os.path.exists(args.run_dirs[0]):
+        print(f"Error: path '{args.run_dirs[0]}' does not exist",
+              file=sys.stderr)
+        exit(1)
     tensorboard_dir = args.run_dirs[0]
 else:
     tensorboard_dir = tempfile.mkdtemp()
     for path in args.run_dirs:
+        if not os.path.exists(path):
+            print(f"Error: path '{path}' does not exist", file=sys.stderr)
+            exit(1)
         link = os.path.join(tensorboard_dir, path)
         os.makedirs(os.path.dirname(link), exist_ok=True)
         os.symlink(os.path.abspath(path), link)
