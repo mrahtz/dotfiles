@@ -2,6 +2,7 @@
 
 import argparse
 import pathlib
+import re
 import subprocess
 
 import os
@@ -11,6 +12,8 @@ import tempfile
 parser = argparse.ArgumentParser()
 parser.add_argument('vid_dirs', nargs='*')
 parser.add_argument('--n', type=int, default=5)
+parser.add_argument('--p')
+parser.add_argument('--np')
 args = parser.parse_args()
 
 vids_by_dir = {}
@@ -18,6 +21,13 @@ for vid_dir in args.vid_dirs:
     for root, dirs, files in os.walk(vid_dir):
         files = [os.path.join(root, f) for f in files]
         mp4_files = list(filter(lambda f: f.endswith('.mp4'), files))
+        if args.p is not None:
+            mp4_files = filter(lambda f: re.search(args.p, f) is not None,
+                               mp4_files)
+        if args.np is not None:
+            mp4_files = filter(lambda f: re.search(args.np, f) is None,
+                               mp4_files)
+        mp4_files = list(mp4_files)
         if not mp4_files:
             continue
         mp4_files = sorted(mp4_files, key=lambda f: os.path.getmtime(f))
