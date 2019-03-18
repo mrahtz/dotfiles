@@ -22,6 +22,6 @@ for f in files:
     if not os.path.exists(f):
         print(f"Error: path '{f}' does not exist", file=sys.stderr)
         exit(1)
-    paths.append(os.path.realpath(f))
+    paths.append("'" + os.path.realpath(f) + "'")
 
 print(f"rtransfer {socket.gethostname()} " + " ".join(paths))
