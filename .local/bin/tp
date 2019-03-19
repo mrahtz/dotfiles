@@ -1,3 +1,3 @@
 #!/bin/bash
 
-t $(ls -l *.mp4 | grep -C 5 $1 | cut -d ' ' -f 9)
+t *.png
