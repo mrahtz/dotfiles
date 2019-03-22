@@ -42,7 +42,6 @@ proc1 = subprocess.Popen(['tensorboard', '--port', str(port), '--logdir', tensor
 print("Waiting for TensorBoard to start...")
 proc1.stderr.readline()
 
-subprocess.run(['pkill', '-f', 'ngrok'])
 proc2 = subprocess.Popen(['h', str(port)])
 
 try:
