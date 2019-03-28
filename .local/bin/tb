@@ -6,6 +6,7 @@ import subprocess
 import socket
 import sys
 import tempfile
+from threading import Thread
 import getpass
 
 parser = argparse.ArgumentParser()
@@ -44,6 +45,14 @@ proc1.stderr.readline()
 
 proc2 = subprocess.Popen(['h', str(port)])
 
+
+def f():
+    while True:
+        proc2.communicate()
+
+
+thread = Thread(target=f)
+thread.start()
 try:
     input()
 except KeyboardInterrupt:
