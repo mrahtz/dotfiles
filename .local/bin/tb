@@ -2,15 +2,17 @@
 
 import argparse
 import os
-import subprocess
 import socket
+import subprocess
 import sys
 import tempfile
-import getpass
+from multiprocessing import Process
+from threading import Thread
 
 parser = argparse.ArgumentParser()
 parser.add_argument('run_dirs', nargs='*')
 args = parser.parse_args()
+
 
 def get_open_port():
     s = socket.socket()
@@ -18,6 +20,12 @@ def get_open_port():
     port = s.getsockname()[1]
     s.close()
     return port
+
+
+def communicate_process(p):
+    while True:
+        p.communicate()
+
 
 port = get_open_port()
 if len(args.run_dirs) == 1:
@@ -38,11 +46,13 @@ else:
 
 subprocess.run(['pkill', '-f', 'tensorboard --port {}'.format(port)])
 proc1 = subprocess.Popen(['tensorboard', '--port', str(port), '--logdir', tensorboard_dir],
-                        stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                         stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 print("Waiting for TensorBoard to start...")
 proc1.stderr.readline()
+proc2 = Process(target=communicate_process, args=(proc1,))
+proc2.start()
 
-proc2 = subprocess.Popen(['h', str(port)])
+proc3 = subprocess.Popen(['h', str(port)])
 
 try:
     input()
