@@ -39,6 +39,6 @@ for dirname in vids_by_dir:
     dirname_tmp = os.path.join(temp_dir, dirname)
     os.mkdir(dirname_tmp)
     for vid in vids_by_dir[dirname]:
-        shutil.copy(vid, dirname_tmp)
+        shutil.copy2(vid, dirname_tmp)
 
 subprocess.run(f"t {temp_dir}/*", shell=True)
