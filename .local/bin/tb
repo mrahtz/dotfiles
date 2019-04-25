@@ -52,7 +52,10 @@ proc1.stderr.readline()
 proc2 = Process(target=communicate_process, args=(proc1,))
 proc2.start()
 
-proc3 = subprocess.Popen(['h', str(port)])
+if 'MacBookFish' in socket.gethostname():
+    subprocess.run(['open', f'http://localhost:{port}'])
+else:
+    proc3 = subprocess.Popen(['h', str(port)])
 
 try:
     input()
