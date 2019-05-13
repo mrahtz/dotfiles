@@ -1,0 +1,20 @@
+#!/usr/bin/env python3
+
+import argparse
+import subprocess
+import os
+import tempfile
+
+parser = argparse.ArgumentParser()
+parser.add_argument('vid', nargs='*')
+args = parser.parse_args()
+
+with tempfile.NamedTemporaryFile('w') as f:
+    for vid in args.vid:
+        if not os.path.exists(vid):
+            print(f"Warning: '{vid}' does not exist; skipping")
+            continue
+        f.write(f"file '{os.path.abspath(vid)}'\n") 
+    f.flush()
+    subprocess.run(['ffmpeg', '-f', 'concat', '-safe', '0', '-i', f.name, '-c', 'copy', 'output.mp4'])
+print("Wrote to output.mp4")
