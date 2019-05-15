@@ -26,7 +26,7 @@ def monitor(paths):
 
         print("Uploading...")
         for f in glob.glob('*.png'):
-            client.upload_file(f, 'mrahtz-runs-2', os.path.basename(f), ExtraArgs={'ACL': 'public-read'})
+            s3.upload_file(f, 'mrahtz-runs-2', os.path.basename(f), ExtraArgs={'ACL': 'public-read'})
         print("Sleeping...")
         stagger_minutes = random.randint(1, 5)
         time.sleep((5 + stagger_minutes) * 60)
@@ -39,23 +39,19 @@ group.add_argument('--get', action='store_true')
 group.add_argument('--paths', nargs='+')
 args = parser.parse_args()
 
-if 'AWS_S3_ID' in os.environ:
-    id = os.environ['AWS_S3_ID']
-    key = os.environ['AWS_S3_KEY']
-    client = boto3.client('s3', aws_access_key_id=id, aws_secret_access_key=key)
-else:
-    client = boto3.client('s3', config=Config(signature_version=UNSIGNED))
-client.list_objects(Bucket='mrahtz-runs-2')
+session = boto3.Session(profile_name='runs_s3')
+s3 = session.client('s3')
+s3.list_objects(Bucket='mrahtz-runs-2')
 
 if args.get:
     tmp_dir = tempfile.mkdtemp()
     print("Listing bucket...")
-    files = client.list_objects(Bucket='mrahtz-runs-2')
+    files = s3.list_objects(Bucket='mrahtz-runs-2')
     threads = []
     print("Downloading files...")
     for key in files['Contents']:
         f = key['Key']
-        t = Thread(target=lambda f=f: client.download_file('mrahtz-runs-2', f, os.path.join(tmp_dir, f)))
+        t = Thread(target=lambda f=f: s3.download_file('mrahtz-runs-2', f, os.path.join(tmp_dir, f)))
         threads.append(t)
         t.start()
     for t in threads:
