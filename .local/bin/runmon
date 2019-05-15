@@ -2,6 +2,7 @@
 
 import argparse
 import glob
+import io
 import os
 import random
 import subprocess
@@ -26,7 +27,9 @@ def monitor(paths):
 
         print("Uploading...")
         for f in glob.glob('*.png'):
-            s3.upload_file(f, 'mrahtz-runs-2', os.path.basename(f), ExtraArgs={'ACL': 'public-read'})
+            with open(f, 'rb') as fd:
+                b = fd.read()
+            s3.upload_fileobj(io.BytesIO(b), 'mrahtz-runs-2', os.path.basename(f), ExtraArgs={'ACL': 'public-read'})
         print("Sleeping...")
         stagger_minutes = random.randint(1, 5)
         time.sleep((5 + stagger_minutes) * 60)
