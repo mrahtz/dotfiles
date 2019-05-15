@@ -1,0 +1,6 @@
+#!/bin/bash
+
+source ~/.keys
+export AWS_S3_KEY
+export AWS_S3_ID
+runmon --paths "$@"
