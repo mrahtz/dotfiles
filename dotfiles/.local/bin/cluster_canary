@@ -1,0 +1,67 @@
+#!/usr/bin/env python3
+
+import argparse
+import datetime
+import hashlib
+import logging
+import os
+import re
+import subprocess
+
+
+def check_last_canary_job(job_name):
+    if not os.path.exists(job_name):
+        raise Exception("Log for {} not found".format(job_name))
+    with open(job_name, 'r') as f:
+        job_output = f.read()
+    os.remove(job_name)
+    job_id = re.findall(r'Job \d{8}', job_output)[0].split(' ')[1]
+    cmd = "bhist -l {}".format(job_id)
+    bjobs_output = subprocess.check_output(cmd.split(' ')).decode().split('\n')
+    for line in bjobs_output:
+        if 'Eligible pending time' in line:
+            eligible_pending_time = re.findall(r'\d+', line)[0]
+        if 'Ineligible pending time' in line:
+            ineligible_pending_time = re.findall(r'\d+', line)[0]
+    return eligible_pending_time, ineligible_pending_time
+
+
+def start_new_canary_job(bsub_opts, job_name):
+    cmd = "bsub -o {0} -J {0} {1} date".format(job_name, bsub_opts)
+    logging.debug("Running '{}'".format(cmd))
+    subprocess.check_output(cmd.split(' '), stderr=subprocess.PIPE)
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('bsub_opts')
+    parser.add_argument('--debug', action='store_true')
+    args = parser.parse_args()
+
+    if args.debug:
+        logging.getLogger().setLevel(logging.DEBUG)
+
+    opts_hash = hashlib.md5(str.encode(args.bsub_opts)).hexdigest()[:8]
+    job_name = "canary-{}".format(opts_hash)
+
+    cmd = "bjobs -w"
+    bjobs_output = subprocess.check_output(cmd.split(' '),
+                                           stderr=subprocess.PIPE).decode()
+    if job_name in bjobs_output:
+        logging.debug("{} still pending".format(job_name))
+    if not job_name in bjobs_output:
+        try:
+            eligible_pending_time, ineligible_pending_time = \
+                check_last_canary_job(job_name)
+            with open('cluster_canary.log', 'a') as f:
+                f.write("{},{},{},{}\n".format(datetime.datetime.now(),
+                                               args.bsub_opts,
+                                               eligible_pending_time,
+                                               ineligible_pending_time))
+        except:
+            pass
+        start_new_canary_job(args.bsub_opts, job_name)
+
+
+if __name__ == '__main__':
+    main()
