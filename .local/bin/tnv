@@ -4,6 +4,7 @@ import argparse
 import pathlib
 import re
 import subprocess
+import sys
 
 import os
 import shutil
@@ -18,6 +19,9 @@ args = parser.parse_args()
 
 vids_by_dir = {}
 for vid_dir in args.vid_dirs:
+    if not os.path.exists(vid_dir):
+        print(f"Error: directory '{vid_dir}' does not exist", file=sys.stderr)
+        exit(1)
     for root, dirs, files in os.walk(vid_dir):
         files = [os.path.join(root, f) for f in files]
         mp4_files = list(filter(lambda f: f.endswith('.mp4'), files))
