@@ -2,6 +2,7 @@
 
 import argparse
 import os
+import platform
 import socket
 import subprocess
 import sys
@@ -52,7 +53,7 @@ proc1.stderr.readline()
 proc2 = Process(target=communicate_process, args=(proc1,))
 proc2.start()
 
-if 'MacBookFish' in socket.gethostname():
+if platform.system() == 'Darwin':
     subprocess.run(['open', f'http://localhost:{port}'])
 else:
     proc3 = subprocess.Popen(['h', str(port)])
