@@ -1,0 +1,10 @@
+#!/bin/bash
+
+if echo "$@" | grep -q -- '-rf'; then
+    read -p "rm $*; are you sure? " sure
+    if ! [[ $sure == "yes" || $sure == "y" ]]; then
+        echo "Not executed."
+        exit 1
+    fi
+fi
+/bin/rm "$@"
