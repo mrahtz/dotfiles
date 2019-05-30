@@ -6,6 +6,7 @@ import fnmatch
 import glob
 import io
 import os
+import platform
 import random
 import shutil
 import subprocess
@@ -69,15 +70,14 @@ def monitor(paths):
         time.sleep((5 + stagger_minutes) * 60)
 
 
-def download_file(s3, filename, last_modified: datetime.datetime, target_dir):
+def download_file(s3, filename, last_modified, target_dir):
     target_file = os.path.join(target_dir, filename)
     print(f"Downloading {filename}...")
     s3.download_file('mrahtz-runs-2', filename, target_file)
-    last_modified_ns = last_modified.replace(tzinfo=datetime.timezone.utc).timestamp()
-    os.utime(target_file, (last_modified_ns, last_modified_ns))
+    os.utime(target_file, (last_modified, last_modified))
 
 
-def download_files_from_bucket():
+def download_files_from_bucket(zips, old):
     tmp_dir = tempfile.mkdtemp()
     print("Listing bucket...")
     files = s3.list_objects(Bucket='mrahtz-runs-2')
@@ -85,10 +85,14 @@ def download_files_from_bucket():
     print("Downloading files...")
     for content in files['Contents']:
         filename = content['Key']
+        if (not zips) and '.zip' in filename:
+            continue
         last_modified = content['LastModified']
-        t = Thread(target=download_file, args=(s3, filename, last_modified, tmp_dir))
-        threads.append(t)
-        t.start()
+        last_modified = last_modified.replace(tzinfo=datetime.timezone.utc).timestamp()
+        if old or (time.time() - last_modified < (24 * 60 * 60)):
+            t = Thread(target=download_file, args=(s3, filename, last_modified, tmp_dir))
+            threads.append(t)
+            t.start()
     for t in threads:
         t.join()
     return tmp_dir
@@ -100,18 +104,22 @@ def main():
     group = parser.add_mutually_exclusive_group()
     group.add_argument('--get', action='store_true')
     group.add_argument('--paths', nargs='+')
-    parser.add_argument('--unzip_recent', action='store_true')
+    parser.add_argument('--zips', action='store_true')
+    parser.add_argument('--old', action='store_true')
     args = parser.parse_args()
 
     if args.get:
-        tmp_dir = download_files_from_bucket()
-        if args.unzip_recent:
+        tmp_dir = download_files_from_bucket(args.zips, args.old)
+        if args.zips:
             for p in glob.glob(os.path.join(tmp_dir, '*.zip')):
                 if time.time() - os.path.getmtime((p)) < (24 * 60 * 60):
                     print(f"Unzipping {p}...")
                     shutil.unpack_archive(p, tmp_dir)
                     os.remove(p)
-        subprocess.run(['open', tmp_dir])
+        if platform.system() == 'Darwin':
+            subprocess.run(['open', tmp_dir])
+        else:
+            print(f"Files downloaded to {tmp_dir}")
     elif args.paths:
         if args.foreground:
             monitor(args.paths)
