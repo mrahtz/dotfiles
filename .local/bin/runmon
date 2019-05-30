@@ -45,6 +45,8 @@ def monitor(paths):
         try:
             for path in paths:
                 events_files = find_files_matching_pattern('events*', path)
+                if not events_files:
+                    continue
                 with tempfile.TemporaryDirectory() as d:
                     for f in events_files:
                         target_dir = os.path.join(d, os.path.dirname(f))
