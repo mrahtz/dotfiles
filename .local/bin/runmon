@@ -34,6 +34,8 @@ def find_files_matching_pattern(pattern, path):
 def monitor(paths):
     while True:
         paths = [p for p in paths if os.path.exists(p)]
+        if not paths:
+            break
 
         print("Plotting...")
         try:
