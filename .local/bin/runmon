@@ -2,10 +2,12 @@
 
 import argparse
 import datetime
+import fnmatch
 import glob
 import io
 import os
 import random
+import shutil
 import subprocess
 import tempfile
 import time
@@ -15,20 +17,49 @@ from threading import Thread
 import boto3
 import daemon
 
+session = boto3.Session(profile_name='runs_s3')
+s3 = session.client('s3')
+s3.list_objects(Bucket='mrahtz-runs-2')
+
+
+def find_files_matching_pattern(pattern, path):
+    result = []
+    for root, dirs, files in os.walk(path, followlinks=True):
+        for name in files:
+            if fnmatch.fnmatch(name, pattern):
+                result.append(os.path.join(root, name))
+    return result
+
 
 def monitor(paths):
     while True:
+        paths = [p for p in paths if os.path.exists(p)]
+
+        print("Plotting...")
         try:
             subprocess.run(['tbplot'] + paths, check=True)
         except subprocess.CalledProcessError as e:
             print(e)
-            exit()
+
+        print("Zipping events files...")
+        try:
+            for path in paths:
+                events_files = find_files_matching_pattern('events*', path)
+                with tempfile.TemporaryDirectory() as d:
+                    for f in events_files:
+                        target_dir = os.path.join(d, os.path.dirname(f))
+                        os.makedirs(target_dir)
+                        shutil.copy(f, target_dir)
+                    shutil.make_archive(path, 'zip', d)
+        except subprocess.CalledProcessError as e:
+            print(e)
 
         print("Uploading...")
-        for f in glob.glob('*.png'):
+        for f in glob.glob('*.png') + glob.glob('*.zip'):
             with open(f, 'rb') as fd:
                 b = fd.read()
             s3.upload_fileobj(io.BytesIO(b), 'mrahtz-runs-2', os.path.basename(f), ExtraArgs={'ACL': 'public-read'})
+
         print("Sleeping...")
         stagger_minutes = random.randint(1, 5)
         time.sleep((5 + stagger_minutes) * 60)
@@ -36,23 +67,13 @@ def monitor(paths):
 
 def download_file(s3, filename, last_modified: datetime.datetime, target_dir):
     target_file = os.path.join(target_dir, filename)
+    print(f"Downloading {filename}...")
     s3.download_file('mrahtz-runs-2', filename, target_file)
     last_modified_ns = last_modified.replace(tzinfo=datetime.timezone.utc).timestamp()
     os.utime(target_file, (last_modified_ns, last_modified_ns))
 
 
-parser = argparse.ArgumentParser()
-parser.add_argument('--foreground', action='store_true')
-group = parser.add_mutually_exclusive_group()
-group.add_argument('--get', action='store_true')
-group.add_argument('--paths', nargs='+')
-args = parser.parse_args()
-
-session = boto3.Session(profile_name='runs_s3')
-s3 = session.client('s3')
-s3.list_objects(Bucket='mrahtz-runs-2')
-
-if args.get:
+def download_files_from_bucket():
     tmp_dir = tempfile.mkdtemp()
     print("Listing bucket...")
     files = s3.list_objects(Bucket='mrahtz-runs-2')
@@ -66,14 +87,38 @@ if args.get:
         t.start()
     for t in threads:
         t.join()
-    subprocess.run(['open', tmp_dir])
-elif args.paths:
-    if args.foreground:
-        monitor(args.paths)
-    else:
-        name = str(uuid.uuid4())
-        log_file = open('/tmp/runmon-' + name + '.log', 'w')
-        with daemon.DaemonContext(stdout=log_file, stderr=log_file, working_directory=os.getcwd()):
+    return tmp_dir
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--foreground', action='store_true')
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument('--get', action='store_true')
+    group.add_argument('--paths', nargs='+')
+    parser.add_argument('--unzip_recent', action='store_true')
+    args = parser.parse_args()
+
+    if args.get:
+        tmp_dir = download_files_from_bucket()
+        if args.unzip_recent:
+            for p in glob.glob(os.path.join(tmp_dir, '*.zip')):
+                if time.time() - os.path.getmtime((p)) < (24 * 60 * 60):
+                    print(f"Unzipping {p}...")
+                    shutil.unpack_archive(p, tmp_dir)
+                    os.remove(p)
+        subprocess.run(['open', tmp_dir])
+    elif args.paths:
+        if args.foreground:
             monitor(args.paths)
-else:
-    parser.print_help()
+        else:
+            name = str(uuid.uuid4())
+            log_file = open('/tmp/runmon-' + name + '.log', 'w')
+            with daemon.DaemonContext(stdout=log_file, stderr=log_file, working_directory=os.getcwd()):
+                monitor(args.paths)
+    else:
+        parser.print_help()
+
+
+if __name__ == '__main__':
+    main()
