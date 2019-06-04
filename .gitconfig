@@ -4,7 +4,6 @@
 	name = Matthew Rahtz
 	email = matthew.rahtz@gmail.com
 [push]
-	# Make it so that you can push new branches with just
-	# 'git push -u'
+	# Push new branches with 'git push -u'
 	# https://stackoverflow.com/a/31999408/7832197
 	default = current
