@@ -1,12 +1,42 @@
-#!/bin/bash
+#!/usr/bin/env python3
+import argparse
+import json
+import re
+import subprocess
+from collections import namedtuple
 
-if [[ $1 == "all" ]]; then
-    statuses="SUBMITTED PENDING RUNNABLE STARTING RUNNING"
-else
-    statuses="RUNNING"
-fi
+parser = argparse.ArgumentParser()
+parser.add_argument('--cmd_filter')
+args = parser.parse_args()
 
-for status in $statuses; do
-    echo "Jobs in status $status:"
-    aws batch list-jobs --job-queue q --job-status $status
-done
+procs = []
+for status in ['SUBMITTED', 'PENDING', 'RUNNABLE', 'STARTING', 'RUNNING']:
+    cmd = "aws batch list-jobs --job-queue queue-fish --job-status " + status
+    cmd = cmd.split(' ')
+    p = subprocess.Popen(cmd, shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    procs.append((status, p))
+
+for _, p in procs:
+    p.wait()
+
+def print_job(job):
+    print('{}\t{}'.format(job.name, job.id))
+
+for status, p in procs:
+    print("Jobs in status {}:".format(status))
+    stdout, stderr = p.communicate()
+    job_summary_list = json.loads(stdout.decode().strip())['jobSummaryList']
+    Job = namedtuple('Job', 'id name status')
+    jobs = [Job(j['jobId'], j['jobName'], j['status']) for j in job_summary_list]
+
+    if jobs and args.cmd_filter:
+        cmd = f"aws batch describe-jobs --jobs " + " ".join([job.id for job in jobs])
+        descriptions = json.loads(subprocess.check_output(cmd.split(' ')))
+        for job_description in descriptions['jobs']:
+            cmd = ' '.join(job_description['container']['command'])
+            if re.search(args.cmd_filter, cmd):
+                job = Job(job_description['jobName'], job_description['jobId'], job_description['status'])
+                print_job(job)
+    else:
+        for job in jobs:
+            print_job(job)
