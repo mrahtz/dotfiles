@@ -1,0 +1,32 @@
+#!/bin/bash
+
+set -o errexit
+
+PATH_TO_ARCHIVE=$1
+if [[ $PATH_TO_ARCHIVE == "" ]]; then
+    echo "Usage: $0 <path to archive>" >&2
+    exit 1
+fi
+
+if [[ $ARCHIVE_PATH == "" ]]; then
+    echo "Please set ARCHIVE_PATH environment variable" >&2
+    exit 1
+fi
+
+ARCHIVE_FOLDER=$ARCHIVE_PATH/$(date +%F)
+mkdir -p "$ARCHIVE_FOLDER"
+
+for PATH_TO_ARCHIVE in $*; do
+    if [[ -e "$ARCHIVE_FOLDER"/"$PATH_TO_ARCHIVE" ]]; then
+        echo "Error: '$PATH_TO_ARCHIVE' already exists in '$ARCHIVE_FOLDER'" >&1
+        exit 1
+    fi
+done
+
+TMP_DIR=$(mktemp -d)
+for PATH_TO_ARCHIVE in $*; do
+    cp -a "$PATH_TO_ARCHIVE" "$ARCHIVE_FOLDER"/
+    echo "$ARCHIVE_FOLDER"/"$PATH_TO_ARCHIVE"
+    mv "$PATH_TO_ARCHIVE" "$TMP_DIR"/
+    echo "(Backed up to '$TMP_DIR')"
+done
