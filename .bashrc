@@ -51,4 +51,3 @@ alias tls='tmux ls'
 alias p='pgrep -af'
 
 export PATH="~/.local/bin:$PATH"
-[ -f ~/.fzf.bash ] && source ~/.fzf.bash
