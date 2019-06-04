@@ -34,7 +34,7 @@ def find_files_matching_pattern(pattern, path):
 
 def monitor(paths):
     while True:
-        paths = [p for p in paths if os.path.exists(p)]
+        paths = [p for p in paths if os.path.exists(p) and os.path.isdir(p)]
         if not paths:
             break
 
@@ -47,15 +47,34 @@ def monitor(paths):
         print("Zipping events files...")
         try:
             for path in paths:
+                path = os.path.normpath(path)  # Strip trailing slash
                 events_files = find_files_matching_pattern('events*', path)
                 if not events_files:
                     continue
                 with tempfile.TemporaryDirectory() as d:
                     for f in events_files:
                         target_dir = os.path.join(d, os.path.dirname(f))
-                        os.makedirs(target_dir)
+                        os.makedirs(target_dir, exist_ok=True)
                         shutil.copy(f, target_dir)
                     shutil.make_archive(path, 'zip', d)
+        except subprocess.CalledProcessError as e:
+            print(e)
+
+        print("Zipping videos...")
+        try:
+            for path in paths:
+                path = os.path.normpath(path)  # Strip trailing slash
+                video_files = find_files_matching_pattern('*mp4', os.path.join(path, 'test_env'))
+                if not video_files:
+                    continue
+                video_files = sorted(video_files, key=lambda f: os.path.getmtime(f))
+                video_files = video_files[-10:-1]
+                with tempfile.TemporaryDirectory() as d:
+                    for f in video_files:
+                        target_dir = os.path.join(d, os.path.dirname(f))
+                        os.makedirs(target_dir, exist_ok=True)
+                        shutil.copy(f, target_dir)
+                    shutil.make_archive(path + '_videos', 'zip', d)
         except subprocess.CalledProcessError as e:
             print(e)
 
