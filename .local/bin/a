@@ -25,6 +25,6 @@ done
 
 for PATH_TO_ARCHIVE in $*; do
     cp -a "$PATH_TO_ARCHIVE" "$ARCHIVE_FOLDER"/
-    rm -rf "$PATH_TO_ARCHIVE"
+    /bin/rm -rf "$PATH_TO_ARCHIVE"
     echo "$ARCHIVE_FOLDER"/"$PATH_TO_ARCHIVE"
 done
