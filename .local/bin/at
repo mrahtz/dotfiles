@@ -1,0 +1,7 @@
+#!/bin/bash
+
+cmd="a"
+for path in "$@"; do
+    cmd="$cmd '$path'"
+done
+tmux new-session -d -s "archive" "$cmd"
