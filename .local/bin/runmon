@@ -66,10 +66,11 @@ def monitor(paths):
             for path in paths:
                 path = os.path.normpath(path)  # Strip trailing slash
                 video_files = find_files_matching_pattern('*mp4', os.path.join(path, 'test_env'))
+                video_files += find_files_matching_pattern('*mp4', os.path.join(path, 'train_env'))
                 if not video_files:
                     continue
                 video_files = sorted(video_files, key=lambda f: os.path.getmtime(f))
-                video_files = video_files[-10:-1]
+                video_files = video_files[-20:-1]
                 with tempfile.TemporaryDirectory() as d:
                     for f in video_files:
                         target_dir = os.path.join(d, os.path.dirname(f))
