@@ -1,0 +1,9 @@
+#!/bin/bash
+
+pattern=$1
+tmux ls | cut -d : -f 1 | while read job; do
+    if grep -q "^archive-" <<< "$job"; then continue; fi
+    if grep -q "$pattern" <<< $job; then
+        tk $job
+    fi
+done

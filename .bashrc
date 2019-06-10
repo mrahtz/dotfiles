@@ -23,14 +23,6 @@ function al() {
     mv screenshot.png _screenshot.png
     t $(echo _screenshot.png; ls -1rt $1/experience/*.mp4 | tail -n 4 | head -n 3)
 }
-function tka() {
-    pattern=$1
-    tmux ls | cut -d : -f 1 | while read job; do
-        if grep -q "$pattern" <<< $job; then
-            tk $job
-        fi
-    done
-}
 
 alias config='git --git-dir=$HOME/.dotfiles --work-tree=$HOME'
 

@@ -23,10 +23,8 @@ for PATH_TO_ARCHIVE in $*; do
     fi
 done
 
-TMP_DIR=$(mktemp -d)
 for PATH_TO_ARCHIVE in $*; do
     cp -a "$PATH_TO_ARCHIVE" "$ARCHIVE_FOLDER"/
+    /bin/rm -rf "$PATH_TO_ARCHIVE"
     echo "$ARCHIVE_FOLDER"/"$PATH_TO_ARCHIVE"
-    mv "$PATH_TO_ARCHIVE" "$TMP_DIR"/
-    echo "(Backed up to '$TMP_DIR')"
 done
