@@ -49,7 +49,10 @@ subprocess.run(['pkill', '-f', 'tensorboard --port {}'.format(port)])
 proc1 = subprocess.Popen(['tensorboard', '--port', str(port), '--logdir', tensorboard_dir],
                          stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 print("Waiting for TensorBoard to start...")
-proc1.stderr.readline()
+first_line = proc1.stderr.readline().decode()
+if 'Traceback' in first_line:
+    print(first_line + proc1.stderr.read().decode(), end='')
+    exit(1)
 proc2 = Process(target=communicate_process, args=(proc1,))
 proc2.start()
 
