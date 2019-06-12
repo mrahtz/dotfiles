@@ -136,7 +136,7 @@ def download_file(s3, filename, last_modified, target_dir):
     os.utime(target_file, (last_modified, last_modified))
 
 
-def download_files_from_bucket(zips, old):
+def download_files_from_bucket(zips, time_limit_hours):
     tmp_dir = tempfile.mkdtemp()
     print("Listing bucket...")
     files = s3.list_objects(Bucket='mrahtz-runs-2')
@@ -148,7 +148,7 @@ def download_files_from_bucket(zips, old):
             continue
         last_modified = content['LastModified']
         last_modified = last_modified.replace(tzinfo=datetime.timezone.utc).timestamp()
-        if old or (time.time() - last_modified < (0.1 * 60 * 60)):
+        if time.time() - last_modified < (time_limit_hours * 60 * 60):
             t = Thread(target=download_file, args=(s3, filename, last_modified, tmp_dir))
             threads.append(t)
             t.start()
@@ -164,11 +164,11 @@ def main():
     group.add_argument('--get', action='store_true')
     group.add_argument('--paths', nargs='+')
     parser.add_argument('--zips', action='store_true')
-    parser.add_argument('--old', action='store_true')
+    parser.add_argument('--time_limit_hours', type=float, default=2.)
     args = parser.parse_args()
 
     if args.get:
-        tmp_dir = download_files_from_bucket(args.zips, args.old)
+        tmp_dir = download_files_from_bucket(args.zips, args.time_limit_hours)
         if args.zips:
             for p in glob.glob(os.path.join(tmp_dir, '*.zip')):
                 if time.time() - os.path.getmtime((p)) < (24 * 60 * 60):
