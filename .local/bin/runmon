@@ -79,7 +79,7 @@ def monitor(paths):
             break
 
         make_plots(paths)
-        data_files = find_videos(paths) + find_event_files(paths)
+        data_files = find_videos(paths) + find_files(paths, 'events*') + find_files(paths, '*log')
         with tempfile.TemporaryDirectory() as d:
             d_subdir = os.path.join(d, data_name)
             os.makedirs(d_subdir)
@@ -112,13 +112,13 @@ def find_videos(paths):
     return videos_all_paths
 
 
-def find_event_files(paths):
-    events_files_all_paths = []
+def find_files(paths, pattern):
+    files_all_paths = []
     for path in paths:
         path = os.path.normpath(path)  # Strip trailing slash
-        events_files = find_files_matching_pattern('events*', path)
-        events_files_all_paths.extend(events_files)
-    return events_files_all_paths
+        paths = find_files_matching_pattern(pattern, path)
+        files_all_paths.extend(paths)
+    return files_all_paths
 
 
 def make_plots(paths):
@@ -171,10 +171,9 @@ def main():
         tmp_dir = download_files_from_bucket(args.zips, args.time_limit_hours)
         if args.zips:
             for p in glob.glob(os.path.join(tmp_dir, '*.zip')):
-                if time.time() - os.path.getmtime((p)) < (24 * 60 * 60):
-                    print(f"Unzipping {p}...")
-                    shutil.unpack_archive(p, tmp_dir)
-                    os.remove(p)
+                print(f"Unzipping {p}...")
+                shutil.unpack_archive(p, tmp_dir)
+                os.remove(p)
         if platform.system() == 'Darwin':
             subprocess.run(['open', tmp_dir])
         else:
