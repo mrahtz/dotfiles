@@ -87,10 +87,10 @@ def monitor(paths):
                 target_dir = os.path.join(d_subdir, os.path.dirname(f))
                 os.makedirs(target_dir, exist_ok=True)
                 shutil.copy2(f, target_dir)
-            shutil.make_archive(data_name, 'zip', d)
+            shutil.make_archive(data_name, 'xztar', d)
 
         print("Uploading...")
-        for f in [data_name + '.png', data_name + '.zip']:
+        for f in [data_name + '.png', data_name + '.tar.xz']:
             with open(f, 'rb') as fd:
                 b = fd.read()
             s3.upload_fileobj(io.BytesIO(b), 'mrahtz-runs-2', os.path.basename(f), ExtraArgs={'ACL': 'public-read'})
@@ -136,7 +136,7 @@ def download_file(s3, filename, last_modified, target_dir):
     os.utime(target_file, (last_modified, last_modified))
 
 
-def download_files_from_bucket(zips, time_limit_hours):
+def download_files_from_bucket(get_data, time_limit_hours):
     tmp_dir = tempfile.mkdtemp()
     print("Listing bucket...")
     files = s3.list_objects(Bucket='mrahtz-runs-2')
@@ -144,7 +144,7 @@ def download_files_from_bucket(zips, time_limit_hours):
     print("Downloading files...")
     for content in files['Contents']:
         filename = content['Key']
-        if (not zips) and '.zip' in filename:
+        if (not get_data) and '.tar.xz' in filename:
             continue
         last_modified = content['LastModified']
         last_modified = last_modified.replace(tzinfo=datetime.timezone.utc).timestamp()
@@ -163,15 +163,15 @@ def main():
     group = parser.add_mutually_exclusive_group()
     group.add_argument('--get', action='store_true')
     group.add_argument('--paths', nargs='+')
-    parser.add_argument('--zips', action='store_true')
+    parser.add_argument('--get_data', action='store_true')
     parser.add_argument('--time_limit_hours', type=float, default=2.)
     args = parser.parse_args()
 
     if args.get:
-        tmp_dir = download_files_from_bucket(args.zips, args.time_limit_hours)
-        if args.zips:
-            for p in glob.glob(os.path.join(tmp_dir, '*.zip')):
-                print(f"Unzipping {p}...")
+        tmp_dir = download_files_from_bucket(args.get_data, args.time_limit_hours)
+        if args.get_data:
+            for p in glob.glob(os.path.join(tmp_dir, '*.tar.xz')):
+                print(f"Unpacking {p}...")
                 shutil.unpack_archive(p, tmp_dir)
                 os.remove(p)
         if platform.system() == 'Darwin':
