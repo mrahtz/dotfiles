@@ -184,6 +184,7 @@ def main():
                 print(f"Error: path '{p}' does not exist", file=sys.stderr)
                 exit(1)
         dirs = [p for p in args.paths if os.path.isdir(p)]
+        dirs = [os.path.normpath(d) for d in dirs]  # Strip trailing slashes
         if args.foreground:
             monitor(dirs)
         else:
