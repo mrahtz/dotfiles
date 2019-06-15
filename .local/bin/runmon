@@ -86,7 +86,7 @@ def monitor(paths):
             for f in data_files:
                 target_dir = os.path.join(d_subdir, os.path.dirname(f))
                 os.makedirs(target_dir, exist_ok=True)
-                shutil.copy(f, target_dir)
+                shutil.copy2(f, target_dir)
             shutil.make_archive(data_name, 'zip', d)
 
         print("Uploading...")
