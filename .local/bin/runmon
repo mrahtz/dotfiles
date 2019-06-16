@@ -13,6 +13,7 @@ import subprocess
 import sys
 import tempfile
 import time
+import traceback
 import uuid
 from threading import Thread
 
@@ -78,27 +79,31 @@ def monitor(paths):
         if any([not os.path.exists(p) for p in paths]):
             break
 
-        make_plots(paths)
-        data_files = find_videos(paths) + find_files(paths, 'events*') + find_files(paths, '*log')
-        with tempfile.TemporaryDirectory() as d:
-            d_subdir = os.path.join(d, data_name)
-            os.makedirs(d_subdir)
-            for f in data_files:
-                target_dir = os.path.join(d_subdir, os.path.dirname(f))
-                os.makedirs(target_dir, exist_ok=True)
-                shutil.copy2(f, target_dir)
-            shutil.make_archive(data_name, 'xztar', d)
+        try:
+            make_plots(paths)
+            data_files = find_videos(paths) + find_files(paths, 'events*') + find_files(paths, '*log')
+            data_files = [d for d in data_files if not d.endswith('.tmp')]
+            with tempfile.TemporaryDirectory() as d:
+                d_subdir = os.path.join(d, data_name)
+                os.makedirs(d_subdir)
+                for f in data_files:
+                    target_dir = os.path.join(d_subdir, os.path.dirname(f))
+                    os.makedirs(target_dir, exist_ok=True)
+                    shutil.copy2(f, target_dir)
+                shutil.make_archive(data_name, 'xztar', d)
 
-        print("Uploading...")
-        for f in [data_name + '.png', data_name + '.tar.xz']:
-            with open(f, 'rb') as fd:
-                b = fd.read()
-            s3.upload_fileobj(io.BytesIO(b), 'mrahtz-runs-2', os.path.basename(f), ExtraArgs={'ACL': 'public-read'})
+            print("Uploading...")
+            for f in [data_name + '.png', data_name + '.tar.xz']:
+                with open(f, 'rb') as fd:
+                    b = fd.read()
+                s3.upload_fileobj(io.BytesIO(b), 'mrahtz-runs-2', os.path.basename(f), ExtraArgs={'ACL': 'public-read'})
 
-        print("Sleeping...")
-        stagger_minutes = random.randint(1, 5)
-        time.sleep((5 + stagger_minutes) * 60)
-
+            print("Sleeping...")
+            stagger_minutes = random.randint(1, 5)
+            time.sleep((5 + stagger_minutes) * 60)
+        except Exception:
+            traceback.print_exc()
+            time.sleep(60)
 
 def find_videos(paths):
     videos_all_paths = []
