@@ -1,7 +1,8 @@
 #!/bin/bash
 
 if echo "$@" | grep -q -- '-rf'; then
-    read -p "rm $*; are you sure? " sure
+    args="$*"
+    read -p "rm $(tr ' ' '\n' <<< $args)"$'\nAre you sure? ' sure
     if ! [[ $sure == "yes" || $sure == "y" ]]; then
         echo "Not executed."
         exit 1
