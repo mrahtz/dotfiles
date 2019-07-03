@@ -1,48 +1,64 @@
 #!/usr/bin/env python3
 
 import argparse
+import os
 import pathlib
 import re
+import shutil
 import subprocess
 import sys
-
-import os
-import shutil
 import tempfile
 
+
+def vids(args):
+    vids_by_dir = {}
+    for vid_dir in args.vid_paths:
+        if not os.path.exists(vid_dir):
+            print(f"Error: directory '{vid_dir}' does not exist", file=sys.stderr)
+            exit(1)
+        for root, dirs, files in os.walk(vid_dir):
+            files = [os.path.join(root, f) for f in files]
+            mp4_files = list(filter(lambda f: f.endswith('.mp4'), files))
+            if args.p is not None:
+                mp4_files = filter(lambda f: re.search(args.p, f) is not None,
+                                   mp4_files)
+            if args.np is not None:
+                mp4_files = filter(lambda f: re.search(args.np, f) is None,
+                                   mp4_files)
+            mp4_files = list(mp4_files)
+            if not mp4_files:
+                continue
+            mp4_files = sorted(mp4_files, key=lambda f: os.path.getmtime(f))
+            mp4_files = mp4_files[-args.n:]
+            vids_by_dir[pathlib.Path(root).parts[0]] = mp4_files[:]
+
+    temp_dir = tempfile.mkdtemp()
+    for dirname in vids_by_dir:
+        dirname_tmp = os.path.join(temp_dir, dirname)
+        os.mkdir(dirname_tmp)
+        for vid in vids_by_dir[dirname]:
+            shutil.copy2(vid, dirname_tmp)
+
+    return temp_dir
+
+def files(args):
+    files_by_time = sorted(args.vid_paths, key=lambda p: os.path.getmtime(p))
+    files = files_by_time[-args.n:]
+    temp_dir = tempfile.mkdtemp()
+    for f in files:
+        shutil.copy2(f, temp_dir)
+    return temp_dir
+
+
 parser = argparse.ArgumentParser()
-parser.add_argument('vid_dirs', nargs='*')
+parser.add_argument('vid_paths', nargs='*')
 parser.add_argument('--n', type=int, default=5)
 parser.add_argument('--p')
 parser.add_argument('--np')
 args = parser.parse_args()
 
-vids_by_dir = {}
-for vid_dir in args.vid_dirs:
-    if not os.path.exists(vid_dir):
-        print(f"Error: directory '{vid_dir}' does not exist", file=sys.stderr)
-        exit(1)
-    for root, dirs, files in os.walk(vid_dir):
-        files = [os.path.join(root, f) for f in files]
-        mp4_files = list(filter(lambda f: f.endswith('.mp4'), files))
-        if args.p is not None:
-            mp4_files = filter(lambda f: re.search(args.p, f) is not None,
-                               mp4_files)
-        if args.np is not None:
-            mp4_files = filter(lambda f: re.search(args.np, f) is None,
-                               mp4_files)
-        mp4_files = list(mp4_files)
-        if not mp4_files:
-            continue
-        mp4_files = sorted(mp4_files, key=lambda f: os.path.getmtime(f))
-        mp4_files = mp4_files[-args.n:]
-        vids_by_dir[pathlib.Path(root).parts[0]] = mp4_files[:]
-
-temp_dir = tempfile.mkdtemp()
-for dirname in vids_by_dir:
-    dirname_tmp = os.path.join(temp_dir, dirname)
-    os.mkdir(dirname_tmp)
-    for vid in vids_by_dir[dirname]:
-        shutil.copy2(vid, dirname_tmp)
-
+if os.path.isdir(args.vid_paths[0]):
+    temp_dir = vids(args)
+else:
+    temp_dir = files(args)
 subprocess.run(f"t {temp_dir}/*", shell=True)

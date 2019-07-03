@@ -15,7 +15,7 @@ parser.add_argument('--only')
 args = parser.parse_args()
 
 if not os.path.isfile(args.events_filename):
-    print(f"Error: '{args.events_filename}' does not exist", file=sys.stderr)
+    print(f"Error: events file '{args.events_filename}' does not exist", file=sys.stderr)
     exit(1)
 
 
@@ -43,6 +43,9 @@ def read_events_file(events_filename):
 
 last_idxs = defaultdict(lambda: 0)
 while True:
+    if not os.path.exists(args.events_filename):
+        print(f"Error: events file '{args.events_filename}' disappeared", file=sys.stderr)
+        exit(1)
     events = read_events_file(args.events_filename)
     for key in events:
         if args.only and args.only not in key:

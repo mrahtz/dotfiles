@@ -71,10 +71,15 @@ else:
         os.symlink(os.path.abspath(path), link)
 
 subprocess.run(['pkill', '-f', 'tensorboard --port {}'.format(port)])
+tmp_dir = '/tmp/matthew'
+os.makedirs(tmp_dir, exist_ok=True)
+env = dict(os.environ)
+env['TMPDIR'] = tmp_dir
 proc1 = subprocess.Popen(['tensorboard',
                           '--samples_per_plugin', 'scalars=0',
                           '--port', str(port), '--logdir', tensorboard_dir],
-                         stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                         stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                         env=env)
 print("Waiting for TensorBoard to start...")
 first_line = proc1.stderr.readline().decode()
 if 'Traceback' in first_line:
