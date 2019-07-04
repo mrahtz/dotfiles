@@ -8,5 +8,5 @@ fi
 free_port=$(python -c 'import socket; s=socket.socket(); s.bind(("", 0)); print(s.getsockname()[1]); s.close()')
 ssh -N -L $free_port:localhost:$2 $1 sshforward &
 if [[ $3 == "http" ]]; then
-    open "http://localhost:$free_port"
+    open -na 'Google Chrome' --args --new-window "http://localhost:$free_port" 
 fi
