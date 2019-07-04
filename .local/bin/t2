@@ -3,11 +3,7 @@
 set -o errexit
 
 server=$1
-remote_paths="$server:\""
-for remote_path in "${@:2}"; do
-    remote_paths="$remote_paths '$remote_path'"
-done
-remote_paths="$remote_paths\""
+remote_path=$2
 
 if test $(find ~/.tr_timestamp -atime -5s); then
     exit
@@ -15,9 +11,9 @@ fi
 touch ~/.tr_timestamp
 
 to_dir=$(mktemp -d)
-cmd="rsync -av $remote_paths '$to_dir' && open '$to_dir'"
+cmd="rsync -avPL $server:$remote_path/* '$to_dir'/ && open '$to_dir'"
 script_name=$(mktemp)
-echo $cmd > $script_name
+echo "$cmd" > $script_name
 bash_cmd="/bin/bash '$script_name'"
 echo "$bash_cmd" > /tmp/tr_debug
 script="tell application \"iTerm2\"
