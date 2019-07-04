@@ -1,9 +1,0 @@
-#!/bin/bash
-
-SERVER=$1
-if [[ $SERVER == "" ]]; then
-    echo "Usage: $0 <server>" >&2
-    exit 1
-fi
-
-rsync -av --exclude runs --exclude pack --delete . "$SERVER":~/interactive-behaviour-design
