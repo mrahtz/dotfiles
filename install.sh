@@ -5,7 +5,6 @@ set -o errexit
 git clone --bare https://github.com/mrahtz/dotfiles ~/.dotfiles
 function config { git --git-dir=$HOME/.dotfiles --work-tree=$HOME $@; }
 config config status.showUntrackedFiles no
-mv $HOME/.bashrc $HOME/.bashrc_old
 checkout_output=$(config checkout 2>&1 || rc=$?)
 if [[ $rc != 0 ]]; then
     mkdir ~/.confbackup
@@ -16,9 +15,8 @@ if [[ $rc != 0 ]]; then
     echo "Existing configuration backed up to .confbackup."
     config checkout
 fi
-cat $HOME/.bashrc_old $HOME/.bashrc > $HOME/.bashrc_new
-mv $HOME/.bashrc_new $HOME/.bashrc
-rm $HOME/.bashrc_old
+
+if ! grep -q .bashrc2 ~/.bashrc; then echo -e "\nsource ~/.bashrc2" >> ~/.bashrc; fi
 
 rm ~/README.md ~/install.sh
 # Don't show these files in 'config status'
