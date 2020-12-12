@@ -1,11 +1,11 @@
-# number of commands to remember
+# Number of commands to remember
 export HISTSIZE=10000
-# save history after every command
+# Save history after every command
 # (in case I want history from a running shell, or the shell crashes)
 export PROMPT_COMMAND='history -a'
-# log timestamps of commands
+# Log timestamps of commands
 export HISTTIMEFORMAT='%Y-%m-%d %H:%M.%S | '
-# set SIGHUP to jobs on exit
+# Set SIGHUP to jobs on exit
 shopt -s huponexit
 
 alias config='git --git-dir=$HOME/.dotfiles --work-tree=$HOME'
