@@ -9,7 +9,7 @@ checkout_output=$(config checkout 2>&1 || rc=$?)
 if [[ $rc != 0 ]]; then
     mkdir ~/.confbackup
     egrep "\s+\." <<< "$checkout_output" | awk '{print $1}' | while read f; do
-    mkdir -p ~/.confbackup/"$(dirname $f)"
+        mkdir -p ~/.confbackup/"$(dirname $f)"
         mv ~/"$f" ~/.confbackup/"$f"
     done
     echo "Existing configuration backed up to .confbackup."
