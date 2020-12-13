@@ -1,4 +1,0 @@
-#!/bin/bash
-
-field_n=$1
-cut -d' ' -f $field_n

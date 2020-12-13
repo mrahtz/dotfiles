@@ -1,6 +1,0 @@
-#!/bin/bash
-montage *.png -tile x1 -mode concatenate result
-tmp=$(mktemp -d)
-mv *.png "$tmp"
-mv result tiled.png
-echo "Images backed up to $tmp"

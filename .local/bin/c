@@ -1,8 +1,0 @@
-#!/bin/bash
-
-if [[ $1 == "" || $2 == "" ]]; then
-    echo "Usage: c <separator> <field no.>" >&2
-    exit 1
-fi
-
-cut -d $1 -f $2

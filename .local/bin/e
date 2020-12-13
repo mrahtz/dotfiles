@@ -1,3 +1,0 @@
-#!/bin/bash
-
-grep -i -e err -e exc "$1"/*.log
