@@ -16,11 +16,3 @@ alias gwd='git diff --word-diff=color'
 alias gwdc='git diff --word-diff=color --cached'
 alias kj='jobs -p | while read line; if echo $line | grep -q "^[0-9]"; set pid $line; kill -9 $pid; end; end'
 alias p8='ping 8.8.8.8'
-
-if not set -q -U fish_user_paths
-  set -U fish_user_paths "$HOME/.local/bin"
-  if test $_platform = "darwin"
-    set -U fish_user_paths $fish_user_paths "$HOME/Library/Python/2.7/bin"
-    set -U fish_user_paths $fish_user_paths "$HOME/Library/Python/3.6/bin"
-  end
-end
