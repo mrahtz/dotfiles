@@ -6,3 +6,4 @@ set ignorecase
 set smartcase	" if a search phrase has uppercase, be case-sensitive
 set autoindent
 syntax on
+set colorcolumn=80
