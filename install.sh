@@ -16,7 +16,18 @@ if [[ $rc != 0 ]]; then
     config checkout
 fi
 
-if ! grep -q .bashrc2 ~/.bashrc; then echo -e "\nsource ~/.bashrc2" >> ~/.bashrc; fi
+bashrc_path="$HOME/.bashrc"
+if [[ ! -e $bashrc_path ]]; then
+    bashrc_path="$HOME/.bash_profile"
+fi
+
+if [[ -e $bash_rc_path ]]; then
+    echo "Couldn't find .bashrc" >&2
+else
+    if ! grep -q .bashrc2 "$bashrc_path"; then
+        echo -e "\nsource ~/.bashrc2" >> "$bashrc_path"
+    fi
+fi
 
 rm ~/README.md ~/install.sh
 # Don't show these files in 'config status'
