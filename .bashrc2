@@ -9,9 +9,9 @@ export HISTTIMEFORMAT='%Y-%m-%d %H:%M.%S | '
 shopt -s huponexit
 
 alias config='git --git-dir=$HOME/.dotfiles --work-tree=$HOME'
-alias ga='git add'
+alias a='git add'
 alias gb='git branch'
-alias gc='git commit'
+alias c='git commit'
 alias gca='git commit --amend'
 alias gco='git checkout'
 alias gcp='git cherry-pick'
