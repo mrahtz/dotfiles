@@ -3,9 +3,5 @@
 [user]
     name = Matthew Rahtz
     email = matthew.rahtz@gmail.com
-[push]
-    # Push new branches with 'git push -u'
-    # https://stackoverflow.com/a/31999408/7832197
-    default = current
 [credential]
     helper = store
